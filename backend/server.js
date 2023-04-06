@@ -1,33 +1,44 @@
-import mongoose from 'mongoose';
+require('dotenv').config()
+const mongoose = require('mongoose');
 const express = require('express');
-const app = express();
-
 const { Schema, connect } = mongoose;
-const username = process.env.REACT_APP_MONGO_DB_USERNAME
-const password = process.env.REACT_APP_MONGO_DB_PASSWORD
-const cluster = process.env.REACT_APP_MONGO_DB_CLUSTER
-const cluster_test = process.env.REACT_APP_MONGO_DB_CLUSTER_TEST
+const routes = require('./routes/routes')
+const app = express();
+app.use(express.json())
 
+const mongoURL = process.env.MONGO_DB_URL
 
-const mongoURL = `mongodb+srv://${username}:${password}@${cluster_test}.mongodb.net`
+mongoose.connect(mongoURL)
 
-const start = async() => {
-    await mongoose.connect(mongoURL)
-}
-const citySchema = new Schema({
-    id: "Number",
-    name: "String",
-    state: "String",
-    country: "String",
-    coord: {
-        lon: "Decimal128",
-        lat: "Decimal128"
-    }
-
+mongoose.connection.on('error', err => {
+    console.log("(!!!!!!!!!!!!!)" + err)
 })
 
+mongoose.connection.once('connected', () => {
+    console.log('Database connected!!')
+})
 
-const connectDB = async() => {
-    await mongoose.connect(mongoURL)
-}
-const cityDOC = mongoose.model('city_list', citySchema)
+app.listen(3000, () => {
+    console.log(`Server started at ${3000}`)
+})
+
+app.use('/api', routes)
+// const start = async() => {
+//     await mongoose.connect(mongoURL, {
+//         ssl: true,
+//         sslValidate: false
+//     })
+// }
+// const citySchema = new Schema({
+//     id: "Number",
+//     name: "String",
+//     state: "String",
+//     country: "String",
+//     coord: {
+//         lon: "Decimal128",
+//         lat: "Decimal128"
+//     }
+
+// })
+// start()
+// const cityDOC = mongoose.model('city_list', citySchema)
