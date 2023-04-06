@@ -8,29 +8,9 @@ import {
     ScrollView,
     FlatList
 } from 'react-native';
-import "../backend/server"
+// import "../backend/server"
 
 let cityObj = 'Lalsot'
-
-// const { Schema, connnect } = mongoose;
-// const username = process.env.REACT_APP_MONGO_DB_USERNAME
-// const password = process.env.REACT_APP_MONGO_DB_PASSWORD
-// const cluster = process.env.REACT_APP_MONGO_DB_CLUSTER
-// const cluster_test = process.env.REACT_APP_MONGO_DB_CLUSTER_TEST
-
-// const mongoURL = `mongodb+srv://${username}:${password}@${cluster_test}.mongodb.net`
-
-// const citySchema = new Schema({
-//     id: "Number",
-//     name: "String",
-//     state: "String",
-//     country: "String",
-//     coord: {
-//         lon: "Decimal128",
-//         lat: "Decimal128"
-//     }
-
-// })
 
 const API_KEY = process.env.REACT_APP_API_KEY
 
@@ -40,18 +20,6 @@ function WeatherApp(){
     // A) Brain of the app
     const [feed, setFeed] = useState([])
     const [cities, setCities] = useState([])
-
-    // Extra fancy component
-    // This function runs once to load the DB
-    // const set_cities = async() => {
-    //     const promise = await fetch(mongoURL)
-    //     const documents = promise.json()
-    //     console.log(documents)
-
-    //     setCities()
-    // }
-
-    // const shaher = cityDOC.find()
 
     let currCityList = []
     const filter_location = (input, cities) => {
