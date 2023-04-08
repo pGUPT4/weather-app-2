@@ -8,7 +8,7 @@ app.use(express.json())
 
 const mongoURL = process.env.MONGO_DB_URL
 
-// connect to databse
+// connect to databse {
 connect(mongoURL)
 
 connection.on('error', err => {
@@ -18,6 +18,7 @@ connection.on('error', err => {
 connection.once('connected', () => {
     console.log('Database running')
 })
+// } connect to databse 
 
 // create at http server at port:3000
 app.listen(3000, () => {
