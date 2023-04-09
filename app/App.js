@@ -21,6 +21,18 @@ function WeatherApp(){
     const [feed, setFeed] = useState([])
     const [cities, setCities] = useState([])
 
+    const get_city = (name) => {
+        return fetch(`http://100.83.89.50:3000/api/getID/${name}`)
+            .then(response => response.json())
+            .then(json => {
+                console.log(json)
+                return json.name
+            })
+            .catch(err => {
+                console.error(err)
+            })
+    }
+
     let currCityList = []
     const filter_location = (input, cities) => {
         currCityList = cities.filter(city => city.startsWith(input))
@@ -47,10 +59,10 @@ function WeatherApp(){
         )
     }
  
-    // useEffect(() => {
-    //     // set_cities()
-    //     // console.log()
-    // }, [])
+    useEffect(() => {
+        get_city(`Noida`)
+        // console.log()
+    }, [])
  
     // B) body of the app 
     return(

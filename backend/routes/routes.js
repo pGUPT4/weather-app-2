@@ -13,7 +13,7 @@ router.get('/getAll', async (req, res) => {
 })
 router.get('/getID/:id', async (req, res) => {
     try{
-        const data = await mongo_model.findOne({_id: req.params.id})
+        const data = await mongo_model.findOne({name: req.params.id})
         res.json(data)
     }
     catch(error){
