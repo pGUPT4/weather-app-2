@@ -11,9 +11,12 @@ router.get('/getAll', async (req, res) => {
         res.status(500).json({message: error.message})
     }
 })
-router.get('/getID/:id', async (req, res) => {
+router.get('/getCity/:name', async (req, res) => {
     try{
-        const data = await mongo_model.findOne({name: req.params.id})
+        const searchStr = req.params.name
+        const regex = new RegExp(`^${searchStr}`, "i")
+        const data = await mongo_model.find({name: { $regex: regex }}).sort({ name: 1 })
+        console.log(data)
         res.json(data)
     }
     catch(error){

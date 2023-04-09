@@ -22,7 +22,7 @@ function WeatherApp(){
     const [cities, setCities] = useState([])
 
     const get_city = (name) => {
-        return fetch(`http://100.83.89.50:3000/api/getID/${name}`)
+        return fetch(`http://100.83.89.50:3000/api/getAll`)
             .then(response => response.json())
             .then(json => {
                 console.log(json)
