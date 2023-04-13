@@ -16,7 +16,6 @@ router.get('/getCity/:name', async (req, res) => {
         const searchStr = req.params.name
         const regex = new RegExp(`^${searchStr}`, "i")
         const data = await mongo_model.find({name: { $regex: regex }}).sort({ name: 1 })
-        console.log(data)
         res.json(data)
     }
     catch(error){

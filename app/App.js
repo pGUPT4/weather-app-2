@@ -20,13 +20,15 @@ function WeatherApp(){
     // A) Brain of the app
     const [feed, setFeed] = useState([])
     const [cities, setCities] = useState([])
+    const [url, setUrl] = useState(``)
 
-    const get_city = (name) => {
-        return fetch(`http://100.83.89.50:3000/api/getAll`)
+    const get_city = (input) => {
+        setUrl(eval('`' + input + '`'))
+        return fetch(`http://100.83.52.70:3000/api/getCity/${url}`)
             .then(response => response.json())
             .then(json => {
                 console.log(json)
-                return json.name
+                // return json.name
             })
             .catch(err => {
                 console.error(err)
@@ -34,8 +36,12 @@ function WeatherApp(){
     }
 
     let currCityList = []
-    const filter_location = (input, cities) => {
-        currCityList = cities.filter(city => city.startsWith(input))
+    const possible_locations = (json_objs) => {
+        // currCityList = cities.filter(city => city.startsWith(input))
+
+        for(var obj in json_obj){
+            currCityList.push()
+        }
         setCities(currCityList)
     }
 
@@ -58,20 +64,20 @@ function WeatherApp(){
             </View>
         )
     }
- 
-    useEffect(() => {
-        get_city(`Noida`)
-        // console.log()
-    }, [])
+
+    // useEffect(() => {
+    //     get_city(`Noida`)
+    //     // console.log()
+    // }, [])
  
     // B) body of the app 
     return(
         <View style = {styles.appBackground}>
  
             <View style = {styles.searchBar}>
-                <TextInput style = {styles.searchText} placeholder = "Search City"></TextInput>
+                <TextInput style = {styles.searchText} placeholder = "Search City" onSubmitEditing={ (value) => get_city(value.nativeEvent.text)}></TextInput>
             </View>
-                 
+            
             {/* ScrollView can only have one view in it */}
             <ScrollView style = {styles.weatherPanel}>
                 <View>
@@ -134,7 +140,10 @@ const styles = StyleSheet.create({
         fontSize: 20,
         borderBottomColor: 'black',
         borderBottomWidth: 1
-    }
+    },
+    textColor:{
+        color: 'white',
+    },
     
 })
   
