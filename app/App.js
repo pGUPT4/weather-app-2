@@ -19,12 +19,11 @@ function WeatherApp(){
 
     // A) Brain of the app
     const [feed, setFeed] = useState([])
-    const [cities, setCities] = useState([])
-    const [url, setUrl] = useState(``)
+    const [city, setCity] = useState("")
 
     const get_city = (input) => {
-        setUrl(eval('`' + input + '`'))
-        return fetch(`http://100.83.52.70:3000/api/getCity/${url}`)
+        let cityName = eval('`' + input + '`')
+        return fetch(`http://100.83.52.70:3000/api/getCity/${cityName}`)
             .then(response => response.json())
             .then(json => {
                 console.log(json)
@@ -33,16 +32,6 @@ function WeatherApp(){
             .catch(err => {
                 console.error(err)
             })
-    }
-
-    let currCityList = []
-    const possible_locations = (json_objs) => {
-        // currCityList = cities.filter(city => city.startsWith(input))
-
-        for(var obj in json_obj){
-            currCityList.push()
-        }
-        setCities(currCityList)
     }
 
     // assume after this point we have gotten the city document
@@ -81,7 +70,7 @@ function WeatherApp(){
             {/* ScrollView can only have one view in it */}
             <ScrollView style = {styles.weatherPanel}>
                 <View>
-                    {cities}
+                    {city}
                 </View>
             </ScrollView>
      
