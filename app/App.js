@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useRef } from "react"
 import 'react-native-get-random-values';
 import {
     View, 
@@ -6,28 +6,37 @@ import {
     StyleSheet,
     TextInput, 
     ScrollView,
-    FlatList
+    FlatList,
+    Touchable,
+    TouchableOpacity
 } from 'react-native';
-// import "../backend/server"
 
 let cityObj = 'Lalsot'
 
 const API_KEY = process.env.REACT_APP_API_KEY
 
 const url_weather = `http://api.openweathermap.org/data/2.5/weather?q=${cityObj}&appid=${API_KEY}`
+
 function WeatherApp(){
 
     // A) Brain of the app
     const [feed, setFeed] = useState([])
-    const [city, setCity] = useState("")
+    const [city, setCity] = useState()
+    const [list, setList] = useState([])
+    const [clicked, setClicked] = useState(false)
+
 
     const get_city = (input) => {
         let cityName = eval('`' + input + '`')
-        return fetch(`http://100.83.52.70:3000/api/getCity/${cityName}`)
+        return fetch(`http://100.83.81.2:3000/api/getCity/${cityName}`)
             .then(response => response.json())
             .then(json => {
-                console.log(json)
-                // return json.name
+                let filteredData = json.map(docs => {
+                    return Object.values(docs)
+                })
+
+                setList(filteredData)
+                console.log(list)
             })
             .catch(err => {
                 console.error(err)
@@ -54,25 +63,45 @@ function WeatherApp(){
         )
     }
 
-    // useEffect(() => {
-    //     get_city(`Noida`)
-    //     // console.log()
-    // }, [])
  
     // B) body of the app 
     return(
         <View style = {styles.appBackground}>
- 
-            <View style = {styles.searchBar}>
-                <TextInput style = {styles.searchText} placeholder = "Search City" onSubmitEditing={ (value) => get_city(value.nativeEvent.text)}></TextInput>
+            <View >
+                <TextInput 
+                  style = {styles.searchBar}
+                  placeholder = "Search City"
+                  onChange = {i => {
+                    get_city(i)
+                    setClicked(!clicked)
+                  }}>
+
+                </TextInput>
+                {clicked ? (
+                    <FlatList
+                      data = {list}
+                      renderItem = {(item, index) => {
+                        return(
+                            <TouchableOpacity
+                            style = {styles.listContents}
+                            onPress={() => {
+                                setCity(item.city)
+                                setClicked(!clicked)
+                            }}>
+                            {console.log("City: " + city)}
+                            </TouchableOpacity>
+                        )
+                      }}>
+
+                    </FlatList>
+                ) : null}
+
             </View>
-            
-            {/* ScrollView can only have one view in it */}
-            <ScrollView style = {styles.weatherPanel}>
+            {/* <ScrollView style = {styles.weatherPanel}>
                 <View>
                     {city}
                 </View>
-            </ScrollView>
+            </ScrollView> */}
      
         </View>
         )
@@ -81,20 +110,30 @@ function WeatherApp(){
 const styles = StyleSheet.create({
     appBackground:{
         flex: 1,
-        backgroundColor: 'black', 
+        backgroundColor: 'blue', 
         flexDirection: 'column'
     },
  
     searchBar:{
-        flex: 0.1,
-        flexDirection: 'column',
-        backgroundColor: 'white', 
-        fontSize: 25
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        padding: 10,
+        paddingLeft:10,
+        paddingRight:10,
+        marginTop:2,
+        alignSelf: "stretch",
+        borderRadius: 5,
+        justifyContent: "space-between"
     },
-    searchText:{
-        flex: 1,
-        borderWidth: 1
-    },
+    listContents:{
+        width:'85%',
+        alignSelf:'center',
+        height: 50,
+        justifyContent:'center',
+        borderBottomWidth: '0.5',
+        borderColor: '#8e8e8e'
+
+    },   
     // Place where all cities' weather are shown
     weatherPanel:{
         flex: 0.9,
@@ -135,5 +174,5 @@ const styles = StyleSheet.create({
     },
     
 })
-  
+
 export default WeatherApp;

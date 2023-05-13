@@ -10,8 +10,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "downshift": "^7.6.0",
     "react": "18.2.0",
     "react-native": "0.71.6",
+    "react-native-autocomplete-dropdown": "^2.1.0",
+    "react-native-dropdown-picker": "^5.4.6",
+    "react-native-element-dropdown": "^2.9.0",
     "react-native-get-random-values": "^1.8.0"
   },
   "devDependencies": {
