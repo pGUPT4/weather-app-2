@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import 'react-native-get-random-values';
 import {
     View, 
@@ -25,23 +25,28 @@ function WeatherApp(){
     const [list, setList] = useState([])
     const [clicked, setClicked] = useState(false)
 
-
-    const get_city = (input) => {
+    const get_city = useCallback((input) => {
         let cityName = eval('`' + input + '`')
-        return fetch(`http://100.83.81.2:3000/api/getCity/${cityName}`)
-            .then(response => response.json())
-            .then(json => {
-                let filteredData = json.map(docs => {
-                    return Object.values(docs)
-                })
+        return fetch(`http://100.83.63.26:3000/api/getCity/${cityName}`)
+        .then(resp => resp.json())
+        .then(json => {
 
-                setList(filteredData)
-                console.log(list)
-            })
-            .catch(err => {
-                console.error(err)
-            })
-    }
+        let filteredData = json.map(docs => {
+            return Object.values(docs)
+        })
+
+        setList(filteredData)
+        console.log(list)
+        })
+        .catch(e => {
+            console.log(e)
+        }
+    )}, [])
+
+    useEffect(()=>{   
+        get_city()     
+    }, [])
+    
 
     // assume after this point we have gotten the city document
 
@@ -68,15 +73,15 @@ function WeatherApp(){
     return(
         <View style = {styles.appBackground}>
             <View >
-                <TextInput 
-                  style = {styles.searchBar}
-                  placeholder = "Search City"
-                  onChange = {i => {
-                    get_city(i)
+                <TextInput style = {styles.searchBar} placeholder = "Search City" 
+                onPressIn = {() => {
                     setClicked(!clicked)
-                  }}>
-
+                }} 
+                onSubmitEditing={i => {
+                    get_city(i.nativeEvent.text)
+                    console.log(clicked)}}>
                 </TextInput>
+                
                 {clicked ? (
                     <FlatList
                       data = {list}
@@ -88,13 +93,14 @@ function WeatherApp(){
                                 setCity(item.city)
                                 setClicked(!clicked)
                             }}>
-                            {console.log("City: " + city)}
+                            {/* {console.log("City: " + city)} */}
                             </TouchableOpacity>
                         )
                       }}>
 
                     </FlatList>
                 ) : null}
+                
 
             </View>
             {/* <ScrollView style = {styles.weatherPanel}>
