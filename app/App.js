@@ -11,42 +11,39 @@ import {
     TouchableOpacity
 } from 'react-native';
 
-let cityObj = 'Lalsot'
 
 const API_KEY = process.env.REACT_APP_API_KEY
 
-const url_weather = `http://api.openweathermap.org/data/2.5/weather?q=${cityObj}&appid=${API_KEY}`
+// const url_weather = `http://api.openweathermap.org/data/2.5/weather?q=${cityObj}&appid=${API_KEY}`
 
 function WeatherApp(){
 
     // A) Brain of the app
-    const [feed, setFeed] = useState([])
-    const [city, setCity] = useState()
+    const [city, setCity] = useState("")
     const [list, setList] = useState([])
+    const [input, setInput] = useState("")
     const [clicked, setClicked] = useState(false)
 
-    const get_city = useCallback((input) => {
+    const get_city = (input) => {
         let cityName = eval('`' + input + '`')
         return fetch(`http://100.83.63.26:3000/api/getCity/${cityName}`)
-        .then(resp => resp.json())
-        .then(json => {
-
-        let filteredData = json.map(docs => {
-            return Object.values(docs)
-        })
-
-        setList(filteredData)
-        console.log(list)
+        .then((resp) => resp.json())
+        .then((json) => {
+            let filteredData = json.map(docs => {
+                return Object.values(docs)
+            })
+            setList(filteredData)
+            console.log("List: " + filteredData)
         })
         .catch(e => {
             console.log(e)
         }
-    )}, [])
-
-    useEffect(()=>{   
-        get_city()     
-    }, [])
+    )}
     
+    const handleChange = (value) => {
+        setInput(value)
+        get_city(value)
+    }
 
     // assume after this point we have gotten the city document
 
@@ -73,14 +70,20 @@ function WeatherApp(){
     return(
         <View style = {styles.appBackground}>
             <View >
-                <TextInput style = {styles.searchBar} placeholder = "Search City" 
+                <TextInput style = {styles.searchBar} 
+                placeholder = "Search City" 
                 onPressIn = {() => {
                     setClicked(!clicked)
-                }} 
-                onSubmitEditing={i => {
-                    get_city(i.nativeEvent.text)
-                    console.log(clicked)}}>
+                }}
+                // Noidavalue = {input} 
+                onSubmitEditing={(i) => {
+                    let name = eval('`' + i.nativeEvent.text + '`')
+                    handleChange(name)
+                    console.log("Clicked? : " + clicked)
+                    
+                    console.log("Name: " + name)}}>
                 </TextInput>
+                
                 
                 {clicked ? (
                     <FlatList
@@ -101,14 +104,9 @@ function WeatherApp(){
                     </FlatList>
                 ) : null}
                 
+                
 
             </View>
-            {/* <ScrollView style = {styles.weatherPanel}>
-                <View>
-                    {city}
-                </View>
-            </ScrollView> */}
-     
         </View>
         )
 }
