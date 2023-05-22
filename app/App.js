@@ -5,11 +5,21 @@ import {
     Text,
     StyleSheet,
     TextInput, 
-    ScrollView,
+    Button,
     FlatList,
     Touchable,
     TouchableOpacity
 } from 'react-native';
+
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+    dsn: "https://797c698b17fe405d9a1b59268d7ee028@o4505224647999488.ingest.sentry.io/4505224858304512",
+    // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+    // We recommend adjusting this value in production.
+    tracesSampleRate: 1.0,
+  });
+
 
 
 const API_KEY = process.env.REACT_APP_API_KEY
@@ -26,12 +36,15 @@ function WeatherApp(){
 
     const get_city = (input) => {
         let cityName = eval('`' + input + '`')
-        return fetch(`http://100.83.63.26:3000/api/getCity/${cityName}`)
+        return fetch(`http://100.88.98.19:3000/api/getCity/${cityName}`)
         .then((resp) => resp.json())
         .then((json) => {
-            let filteredData = json.map(docs => {
-                return Object.values(docs)
-            })
+            let filteredData
+            if (Array.isArray(json)) {
+                filteredData = json.map(docs => {
+                    return Object.values(docs)
+                })
+            }
             setList(filteredData)
             console.log("List: " + filteredData)
         })
@@ -75,7 +88,7 @@ function WeatherApp(){
                 onPressIn = {() => {
                     setClicked(!clicked)
                 }}
-                // Noidavalue = {input} 
+                // value = {input} 
                 onSubmitEditing={(i) => {
                     let name = eval('`' + i.nativeEvent.text + '`')
                     handleChange(name)
@@ -83,7 +96,6 @@ function WeatherApp(){
                     
                     console.log("Name: " + name)}}>
                 </TextInput>
-                
                 
                 {clicked ? (
                     <FlatList
@@ -103,9 +115,6 @@ function WeatherApp(){
 
                     </FlatList>
                 ) : null}
-                
-                
-
             </View>
         </View>
         )
