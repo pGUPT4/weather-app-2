@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect } from "react"
 import 'react-native-get-random-values';
 import {
     View, 
     Text,
     StyleSheet,
-    TextInput, 
-    Button,
+    TextInput,
     FlatList,
-    Touchable,
     TouchableOpacity
 } from 'react-native';
 
@@ -24,29 +22,30 @@ Sentry.init({
 
 const API_KEY = process.env.REACT_APP_API_KEY
 
-// const url_weather = `http://api.openweathermap.org/data/2.5/weather?q=${cityObj}&appid=${API_KEY}`
+let cityObj
+const url_weather = `http://api.openweathermap.org/data/2.5/weather?q=${cityObj}&appid=${API_KEY}`
 
 function WeatherApp(){
 
     // A) Brain of the app
     const [city, setCity] = useState("")
-    const [list, setList] = useState([])
-    const [input, setInput] = useState("")
     const [clicked, setClicked] = useState(false)
+    const [input, setInput] = useState(' ')
 
+    let filteredData
     const get_city = (input) => {
         let cityName = eval('`' + input + '`')
-        return fetch(`http://100.88.98.19:3000/api/getCity/${cityName}`)
+        return fetch(`http://100.83.61.11:3000/api/getCity/${cityName}`)
         .then((resp) => resp.json())
         .then((json) => {
-            let filteredData
+            
             if (Array.isArray(json)) {
                 filteredData = json.map(docs => {
                     return Object.values(docs)
                 })
             }
-            setList(filteredData)
-            console.log("List: " + filteredData)
+
+            // console.log(filteredData)
         })
         .catch(e => {
             console.log(e)
@@ -54,7 +53,7 @@ function WeatherApp(){
     )}
     
     const handleChange = (value) => {
-        setInput(value)
+        // setInput(value)
         get_city(value)
     }
 
@@ -62,22 +61,26 @@ function WeatherApp(){
 
     // 2) apply the given location to get weather
     let cityJSON
-    const get_weather = async() => {
-        const resp = await fetch(url_weather)
-        cityJSON = resp.json()
-    }
+    const get_weather = async(jsonC) => {
+        cityObj = eval('`' + city + '`')
+        return fetch(url_weather)
+        .then((resp) => resp.json())
+        .then((json) => {
+            jsonC = json
+            // if (Array.isArray(json)) {
+            //     filteredData = json.map(docs => {
+            //         return Object.values(docs)
+            //     })
+            // }
+        })
+        .catch(e => {
+            console.log(e)
+        }
+    )}
  
-    // 3 after getting city name and its weather information, display
-    const buttonPressed = (cityJSON) => {
-        feed.push(
-            <View style = {styles.weatherBoard}>
-                <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
-                <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
-                <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
-            </View>
-        )
-    }
-
+    useEffect(() => {
+        get_weather()
+    }, [])
  
     // B) body of the app 
     return(
@@ -88,31 +91,35 @@ function WeatherApp(){
                 onPressIn = {() => {
                     setClicked(!clicked)
                 }}
-                // value = {input} 
-                onSubmitEditing={(i) => {
-                    let name = eval('`' + i.nativeEvent.text + '`')
-                    handleChange(name)
-                    console.log("Clicked? : " + clicked)
-                    
-                    console.log("Name: " + name)}}>
+                onChangeText={(i) => {
+                    setInput(i)
+                    console.log("Input = " + i)
+                    handleChange(input)
+                    console.log("Clicked: " + clicked)}}>
                 </TextInput>
                 
                 {clicked ? (
                     <FlatList
-                      data = {list}
-                      renderItem = {(item, index) => {
+                      data = {filteredData}
+                      renderItem = {(item) => {
                         return(
                             <TouchableOpacity
                             style = {styles.listContents}
                             onPress={() => {
-                                setCity(item.city)
-                                setClicked(!clicked)
+                                setCity(item.name)
+                                setClicked(false)
+                                get_weather(cityJSON)
+                                feed.push(
+                                    <View style = {styles.weatherBoard}>
+                                        <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
+                                        <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
+                                        <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
+                                    </View>
+                                )
                             }}>
-                            {/* {console.log("City: " + city)} */}
                             </TouchableOpacity>
                         )
                       }}>
-
                     </FlatList>
                 ) : null}
             </View>
@@ -157,7 +164,7 @@ const styles = StyleSheet.create({
     // Style for each city 
     weatherBoard:{
         flex: 9, 
-        backgroundColor: 'blue',
+        backgroundColor: 'white',
         borderRadius: 10,
         marginTop: 12
     },
