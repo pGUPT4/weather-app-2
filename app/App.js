@@ -99,28 +99,30 @@ function WeatherApp(){
                 </TextInput>
                 
                 {clicked ? (
-                    <FlatList
-                      data = {filteredData}
-                      renderItem = {(item) => {
-                        return(
-                            <TouchableOpacity
-                            style = {styles.listContents}
-                            onPress={() => {
-                                setCity(item.name)
-                                setClicked(false)
-                                get_weather(cityJSON)
-                                feed.push(
-                                    <View style = {styles.weatherBoard}>
-                                        <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
-                                        <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
-                                        <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
-                                    </View>
-                                )
-                            }}>
-                            </TouchableOpacity>
-                        )
-                      }}>
-                    </FlatList>
+                    <View style = {styles.dropDownView}>
+                        <FlatList
+                        data = {filteredData}
+                        renderItem = {({item}) => {
+                            return(
+                                <TouchableOpacity
+                                style = {styles.listContents}
+                                onPress={() => {
+                                    setCity(item.name)
+                                    setClicked(false)
+                                    get_weather(cityJSON)
+                                    feed.push(
+                                        <View style = {styles.weatherBoard}>
+                                            <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
+                                            <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
+                                            <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
+                                        </View>
+                                    )
+                                }}>
+                                </TouchableOpacity>
+                            )
+                        }}>
+                        </FlatList>
+                    </View>
                 ) : null}
             </View>
         </View>
@@ -153,7 +155,15 @@ const styles = StyleSheet.create({
         borderBottomWidth: '0.5',
         borderColor: '#8e8e8e'
 
-    },   
+    },
+    dropDownView :{
+        width: '85%',
+        height: 300,
+        borderRadius:10,
+        backgroundColor: '#fff',
+        elevation: 5,
+        alignSelf: 'center'
+    },
     // Place where all cities' weather are shown
     weatherPanel:{
         flex: 0.9,
