@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react"
-import 'react-native-get-random-values';
 import {
     View, 
     Text,
@@ -21,8 +20,6 @@ Sentry.init({
 
 const API_KEY = process.env.REACT_APP_API_KEY
 
-let cityObj
-const url_weather = `http://api.openweathermap.org/data/2.5/weather?q=${cityObj}&appid=${API_KEY}`
 
 function WeatherApp(){
 
@@ -30,134 +27,128 @@ function WeatherApp(){
     const [city, setCity] = useState("")
     const [clicked, setClicked] = useState(false)
     const [input, setInput] = useState(' ')
-    const [list, setList] = useState([])
+    const [data, setData] = useState([])
 
-    const data = [{id: 1, name: "Parth"}, {id: 2, name: "Gupta"}, {id: 3, name: "USA"}]
+    const url_weather = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`
 
-    let filteredData
-    let tempArray = []
+
+    var list = []
     const get_city = (input) => {
+
         let cityName = eval('`' + input + '`')
-        const url = `http://100.83.34.119:3000/api/getCity/${cityName}`
-        console.log(url)
-        return fetch(`http://100.83.34.119:3000/api/getCity/${cityName}`
-        // ,{
-        //     headers:{
-        //         'Content-type': 'application/json'
-        //     }
-        // }
-        )
+
+        return fetch(`http://100.83.34.119:3000/api/getCity/${cityName}`)
         .then((resp) => {
-            // console.log("Response.ok = " + resp.ok)
-            // console.log(resp)
+
             if (!resp.ok) {
                 throw new Error('Request failed with status:', resp.status);
             }
             return resp.json(); // Parsing not needed if response is already JSON
+
         })
         .then((json) => {
 
             if (Array.isArray(json)) {
-                filteredData = json.map(docs => {
+                let filteredData = json.map(docs => {
                     return Object.values(docs)
-
                 })
 
                 filteredData.forEach((item, index) => {
-                    tempArray.push({id: index, name: item[3], country: item[5] })
+                    list.push({
+                        id: index,
+                        city: item[3],
+                        country: item[5],
+                    })
                 })
-                setList(tempArray)
+                setData(list)
             }
-            //filteredData = JSON.parse(json)
-            // console.log("JSON Data = " + filteredData)
         })
         .catch(e => {
             console.error("***ERROR*** " + e)
         }
     )
-    
-    
 }
     
     const handleChange = (value) => {
         // setInput(value)
         get_city(value)
+        setInput(value)
     }
 
     // assume after this point we have gotten the city document
 
     // 2) apply the given location to get weather
-    let cityJSON
-    const get_weather = async(jsonC) => {
-        cityObj = eval('`' + city + '`')
-        return fetch(url_weather)
-        .then((resp) => resp.json())
-        .then((json) => {
-            jsonC = json
-            // if (Array.isArray(json)) {
-            //     filteredData = json.map(docs => {
-            //         return Object.values(docs)
-            //     })
-            // }
-        })
-        .catch(e => {
-            console.log(e)
+    const get_weather = async() => {
+        let cityObj = eval('`' + city + '`')
+        if(city != ""){
+            console.log(url_weather)
+            return fetch(url_weather)
+            .then((resp) => resp.json())
+            .then((json) => {
+                console.log(json)
+                // if (Array.isArray(json)) {
+                //     let weather = json.map(docs => {
+                //         return Object.values(docs)
+                //     })
+                // }
+            })
+            .catch(e => {
+                console.log(e)
+            })
         }
-    )}
+    }
  
     useEffect(() => {
+        // get_city()
         get_weather()
-    }, [])
+    }, [city])
+
  
     // B) body of the app 
     return(
         <View style = {styles.appBackground}>
             <View >
-                <TextInput style = {styles.searchBar} 
-                placeholder = "Search City" 
-                placeholderTextColor= "lime"
-                onSubmitEditing={(i) => {
-                    const city = i.nativeEvent.text
-                    setInput(city)
-                    handleChange(city)
-                    setClicked(!clicked)}}>
+                <TextInput 
+                    style = {styles.searchBar} 
+                    placeholder = "Search City" 
+                    placeholderTextColor= "lime"
+                    onSubmitEditing={(i) => {
+                        handleChange(i.nativeEvent.text)
+                        setClicked(!clicked)}}>
                 </TextInput>
                 
                 {clicked ? (
                     <View style = {styles.dropDownView}>
                         <FlatList
-                        data = {list}
-                        renderItem = {({item}) => 
-                            
-                            <TouchableOpacity
-                                style = {styles.listContents}
-                                onPress={() => {
-                                    setCity(item.name)
-                                    setClicked(false)
-                                    get_weather(cityJSON)
-                                    feed.push(
-                                        <View style ={styles.weatherBoard}>
-                                            <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
-                                            <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
-                                            <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
-                                        </View>
-                                    )
+                            data = {data}
+                            renderItem = {({item}) => {
+                                return(
+                                    <Text 
+                                        style = {styles.searchBarContent}
+                                        onPress ={() => {
+                                            setCity(item.city)
+                                            setClicked(false)
+                                            get_weather()
+                                            // feed.push(
+                                            //     <View style ={styles.weatherBoard}>
+                                            //         <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
+                                            //         <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
+                                            //         <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
+                                            //     </View>
+                                            // )
 
-                                    console.log("City: " + city)
-                                }}>
-
-                                <Text style = {styles.searchBar}>{item.name + ", " + item.country}</Text>
-
-                            </TouchableOpacity>
-                                
-                
-                        }>
+                                            console.log("City: " + item.city)
+                                            console.log("stateCity: " + city)                              
+                                        }}>
+                                        {item.city + ", " + item.country}
+                                    </Text>
+                                )}}>
                         </FlatList>
                     </View>
                 ) : null}
             </View>
         </View>
-        )
+    )
 }
   
 const styles = StyleSheet.create({
@@ -166,18 +157,31 @@ const styles = StyleSheet.create({
         backgroundColor: 'midnightblue', 
         flexDirection: 'column'
     },
- 
+    searchBarContent:{
+        flexDirection: 'row',
+        backgroundColor: 'black',
+        padding: 10,
+        paddingLeft:20,
+        paddingRight:10,
+        marginTop:2,
+        alignSelf: "stretch",
+        borderRadius: 5,
+        justifyContent: "space-between",
+        fontSize: 15,
+        color: 'lime'
+    },
     searchBar:{
         flexDirection: 'row',
         backgroundColor: 'black',
         padding: 10,
-        paddingLeft:10,
+        paddingLeft:15,
         paddingRight:10,
         marginTop:2,
         alignSelf: "stretch",
         borderRadius: 5,
         justifyContent: "space-between",
         opacity: 0.7,
+        fontSize:15, 
         color: 'lime'
     },
     listContents:{
