@@ -71,9 +71,7 @@ function WeatherApp(){
 }
     
     const handleChange = (value) => {
-        // setInput(value)
         get_city(value)
-        //setInput(value)
     }
 
     // assume after this point we have gotten the city document
@@ -103,7 +101,6 @@ function WeatherApp(){
     }
  
     useEffect(() => {
-        // get_city()
         get_weather()
     }, [city])
 
