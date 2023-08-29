@@ -16,7 +16,7 @@ connection.on('error', err => {
 })
 
 connection.once('connected', () => {
-    console.log('Database running')
+    console.log('Database running :)')
 })
 // } connect to databse 
 

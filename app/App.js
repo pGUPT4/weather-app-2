@@ -12,12 +12,11 @@ import {
 import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
-    dsn: "https://797c698b17fe405d9a1b59268d7ee028@o4505224647999488.ingest.sentry.io/4505224858304512",
+    dsn: "https://1cc1e9fd85755dfcc69b7364f81af245@o4505785451610112.ingest.sentry.io/4505785452134400",
     // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
     // We recommend adjusting this value in production.
     tracesSampleRate: 1.0,
   });
-
 
 
 const API_KEY = process.env.REACT_APP_API_KEY
@@ -35,22 +34,44 @@ function WeatherApp(){
     let filteredData
     const get_city = (input) => {
         let cityName = eval('`' + input + '`')
-        return fetch(`http://100.83.61.11:3000/api/getCity/${cityName}`)
-        .then((resp) => resp.json())
+        console.log("City = " + input)
+        const url = `http://100.83.34.119:3000/api/getCity/${cityName}`
+        console.log(url)
+        return fetch(`http://100.83.34.119:3000/api/getCity/${cityName}`
+        // ,{
+        //     headers:{
+        //         'Content-type': 'application/json'
+        //     }
+        // }
+        )
+        .then((resp) => {
+            // console.log("Response.ok = " + resp.ok)
+            // console.log(resp)
+            if (!resp.ok) {
+                throw new Error('Request failed with status:', resp.status);
+            }
+            return resp.json(); // Parsing not needed if response is already JSON
+        })
         .then((json) => {
-            
+
             if (Array.isArray(json)) {
                 filteredData = json.map(docs => {
                     return Object.values(docs)
-                })
-            }
 
-            // console.log(filteredData)
+                })
+                // console.log(filteredData)
+            }
+            //filteredData = JSON.parse(json)
+
+            console.log("JSON Data = " + filteredData)
         })
         .catch(e => {
-            console.log(e)
+            console.error("***ERROR*** " + e)
         }
-    )}
+    )
+    
+    
+}
     
     const handleChange = (value) => {
         // setInput(value)
@@ -88,14 +109,15 @@ function WeatherApp(){
             <View >
                 <TextInput style = {styles.searchBar} 
                 placeholder = "Search City" 
+                placeholderTextColor= "lime"
                 onPressIn = {() => {
                     setClicked(!clicked)
                 }}
-                onChangeText={(i) => {
-                    setInput(i)
-                    console.log("Input = " + i)
-                    handleChange(input)
-                    console.log("Clicked: " + clicked)}}>
+                onSubmitEditing={(i) => {
+                    const city = i.nativeEvent.text
+                    console.log("Nigga - " + city)
+                    setInput(city)
+                    handleChange(city)}}>
                 </TextInput>
                 
                 {clicked ? (
@@ -105,19 +127,22 @@ function WeatherApp(){
                         renderItem = {({item}) => {
                             return(
                                 <TouchableOpacity
-                                style = {styles.listContents}
-                                onPress={() => {
-                                    setCity(item.name)
-                                    setClicked(false)
-                                    get_weather(cityJSON)
-                                    feed.push(
-                                        <View style = {styles.weatherBoard}>
-                                            <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
-                                            <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
-                                            <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
-                                        </View>
-                                    )
-                                }}>
+                                    style = {styles.listContents}
+                                    onPress={() => {
+                                        setCity(item.name)
+                                        setClicked(false)
+                                        get_weather(cityJSON)
+                                        feed.push(
+                                            <View style ={styles.weatherBoard}>
+                                                <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
+                                                <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
+                                                <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
+                                            </View>
+                                        )
+
+                                        console.log("City: " + city)
+                                    }}>
+                                    <Text>{item.city + ", " + item.country}</Text>
                                 </TouchableOpacity>
                             )
                         }}>
@@ -132,20 +157,22 @@ function WeatherApp(){
 const styles = StyleSheet.create({
     appBackground:{
         flex: 1,
-        backgroundColor: 'blue', 
+        backgroundColor: 'midnightblue', 
         flexDirection: 'column'
     },
  
     searchBar:{
         flexDirection: 'row',
-        backgroundColor: 'white',
+        backgroundColor: 'black',
         padding: 10,
         paddingLeft:10,
         paddingRight:10,
         marginTop:2,
         alignSelf: "stretch",
         borderRadius: 5,
-        justifyContent: "space-between"
+        justifyContent: "space-between",
+        opacity: 0.7,
+        color: 'lime'
     },
     listContents:{
         width:'85%',
@@ -157,12 +184,14 @@ const styles = StyleSheet.create({
 
     },
     dropDownView :{
-        width: '85%',
+        width: '100%',
         height: 300,
         borderRadius:10,
-        backgroundColor: '#fff',
+        backgroundColor: 'black',
         elevation: 5,
-        alignSelf: 'center'
+        alignSelf: 'center',
+        margin: 5,
+        opacity: 0.7
     },
     // Place where all cities' weather are shown
     weatherPanel:{
