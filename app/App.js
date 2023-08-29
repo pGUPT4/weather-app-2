@@ -30,11 +30,14 @@ function WeatherApp(){
     const [city, setCity] = useState("")
     const [clicked, setClicked] = useState(false)
     const [input, setInput] = useState(' ')
+    const [list, setList] = useState([])
+
+    const data = [{id: 1, name: "Parth"}, {id: 2, name: "Gupta"}, {id: 3, name: "USA"}]
 
     let filteredData
+    let tempArray = []
     const get_city = (input) => {
         let cityName = eval('`' + input + '`')
-        console.log("City = " + input)
         const url = `http://100.83.34.119:3000/api/getCity/${cityName}`
         console.log(url)
         return fetch(`http://100.83.34.119:3000/api/getCity/${cityName}`
@@ -59,11 +62,14 @@ function WeatherApp(){
                     return Object.values(docs)
 
                 })
-                // console.log(filteredData)
+
+                filteredData.forEach((item, index) => {
+                    tempArray.push({id: index, name: item[3], country: item[5] })
+                })
+                setList(tempArray)
             }
             //filteredData = JSON.parse(json)
-
-            console.log("JSON Data = " + filteredData)
+            // console.log("JSON Data = " + filteredData)
         })
         .catch(e => {
             console.error("***ERROR*** " + e)
@@ -110,42 +116,42 @@ function WeatherApp(){
                 <TextInput style = {styles.searchBar} 
                 placeholder = "Search City" 
                 placeholderTextColor= "lime"
-                onPressIn = {() => {
-                    setClicked(!clicked)
-                }}
                 onSubmitEditing={(i) => {
                     const city = i.nativeEvent.text
-                    console.log("Nigga - " + city)
                     setInput(city)
-                    handleChange(city)}}>
+                    handleChange(city)
+                    setClicked(!clicked)}}>
                 </TextInput>
                 
                 {clicked ? (
                     <View style = {styles.dropDownView}>
                         <FlatList
-                        data = {filteredData}
-                        renderItem = {({item}) => {
-                            return(
-                                <TouchableOpacity
-                                    style = {styles.listContents}
-                                    onPress={() => {
-                                        setCity(item.name)
-                                        setClicked(false)
-                                        get_weather(cityJSON)
-                                        feed.push(
-                                            <View style ={styles.weatherBoard}>
-                                                <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
-                                                <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
-                                                <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
-                                            </View>
-                                        )
+                        data = {list}
+                        renderItem = {({item}) => 
+                            
+                            <TouchableOpacity
+                                style = {styles.listContents}
+                                onPress={() => {
+                                    setCity(item.name)
+                                    setClicked(false)
+                                    get_weather(cityJSON)
+                                    feed.push(
+                                        <View style ={styles.weatherBoard}>
+                                            <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
+                                            <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
+                                            <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
+                                        </View>
+                                    )
 
-                                        console.log("City: " + city)
-                                    }}>
-                                    <Text>{item.city + ", " + item.country}</Text>
-                                </TouchableOpacity>
-                            )
-                        }}>
+                                    console.log("City: " + city)
+                                }}>
+
+                                <Text style = {styles.searchBar}>{item.name + ", " + item.country}</Text>
+
+                            </TouchableOpacity>
+                                
+                
+                        }>
                         </FlatList>
                     </View>
                 ) : null}
