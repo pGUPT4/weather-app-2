@@ -5,9 +5,10 @@ import {
     StyleSheet,
     TextInput,
     FlatList,
-    TouchableOpacity
+    TouchableOpacity,
+    ScrollView
 } from 'react-native';
-
+import {REACT_NATIVE_API_KEY} from 'react-native-dotenv'
 import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
@@ -26,10 +27,10 @@ function WeatherApp(){
     // A) Brain of the app
     const [city, setCity] = useState("")
     const [clicked, setClicked] = useState(false)
-    const [input, setInput] = useState(' ')
+    const [weather, setWeather] = useState([])
     const [data, setData] = useState([])
 
-    const url_weather = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`
+    const url_weather = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=2c64c29c4847423f80020b260c377943`
 
 
     var list = []
@@ -72,25 +73,28 @@ function WeatherApp(){
     const handleChange = (value) => {
         // setInput(value)
         get_city(value)
-        setInput(value)
+        //setInput(value)
     }
 
     // assume after this point we have gotten the city document
 
     // 2) apply the given location to get weather
+    let feed = []
     const get_weather = async() => {
-        let cityObj = eval('`' + city + '`')
         if(city != ""){
-            console.log(url_weather)
             return fetch(url_weather)
             .then((resp) => resp.json())
             .then((json) => {
                 console.log(json)
-                // if (Array.isArray(json)) {
-                //     let weather = json.map(docs => {
-                //         return Object.values(docs)
-                //     })
-                // }
+                feed.push(
+                    <View style ={styles.weatherBoard}>
+                        <Text style = {styles.cityName}>{city}</Text>
+                        <Text style = {styles.temperature}>{json.timezone}</Text>
+                        <Text style = {styles.temperature}>{json.timezone}</Text>
+                    </View>
+                )
+                setWeather(feed)
+                
             })
             .catch(e => {
                 console.log(e)
@@ -128,17 +132,7 @@ function WeatherApp(){
                                         onPress ={() => {
                                             setCity(item.city)
                                             setClicked(false)
-                                            get_weather()
-                                            // feed.push(
-                                            //     <View style ={styles.weatherBoard}>
-                                            //         <Text key = {cityJSON.id} style = {styles.date}>{dates[i]}</Text>
-                                            //         <Text key = {cityJSON.coord.lat} style = {styles.temperature}>{cityJSON.temp}</Text>
-                                            //         <Text key = {cityJSON.name} style = {styles.cityName}>{cityJSON.name}</Text>
-                                            //     </View>
-                                            // )
-
-                                            console.log("City: " + item.city)
-                                            console.log("stateCity: " + city)                              
+                                            get_weather()                            
                                         }}>
                                         {item.city + ", " + item.country}
                                     </Text>
@@ -147,6 +141,11 @@ function WeatherApp(){
                     </View>
                 ) : null}
             </View>
+            <ScrollView>
+                <View>
+                    {weather}
+                </View>
+            </ScrollView>
         </View>
     )
 }
@@ -213,21 +212,21 @@ const styles = StyleSheet.create({
     // Style for each city 
     weatherBoard:{
         flex: 9, 
-        backgroundColor: 'white',
+        backgroundColor: 'black',
         borderRadius: 10,
         marginTop: 12
     },
   
     // Temorary styles - 
-    date: {
-        fontSize: 20,
+    temperature:{
+        fontSize: 30,
+        margin: 15,
         color: 'white'
     },
-    temperature:{
-        fontSize: 30
-    },
     cityName:{
-        fontSize: 30
+        fontSize: 20,
+        color: 'white',
+        margin: 15
     },
     flatlist:{
         flex: 7,
